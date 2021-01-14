@@ -14,9 +14,9 @@ def open():
     input = driver.find_elements_by_tag_name("input")
     time.sleep(3)
     if input[0].get_attribute("placeholder") == "账号":
-        input[0].send_keys("学号")
+        input[0].send_keys("2017xxxxxxxx")
         time.sleep(2)
-        input[1].send_keys("信息门户密码")
+        input[1].send_keys("xxxxxxxx")
         time.sleep(2)
         driver.find_element_by_class_name("btn").click()
         time.sleep(10)
@@ -34,9 +34,14 @@ def open():
     submit = driver.find_element_by_link_text("提交信息（Submit）")
     submit.click()
     time.sleep(10)
-    xpath = "//div[@class='wapcf-btn wapcf-btn-ok']"
-    affirm = driver.find_element_by_xpath(xpath)
-    affirm.click()
+    try:
+        xpath = "//div[@class='wapcf-btn wapcf-btn-ok']"
+        affirm = driver.find_element_by_xpath(xpath)
+        affirm.click()
+    except:
+        xpath = "//div[@class='wapat-btn wapat-btn-ok']"
+        affirm = driver.find_element_by_xpath(xpath)
+        affirm.click()
     time.sleep(3)
     driver.close()
 
