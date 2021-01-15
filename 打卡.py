@@ -4,9 +4,13 @@ import time
 from selenium import webdriver
 
 url = "https://onewechat.bnu.edu.cn/ncov/wap/default/index"
+egde_drive_path = ''
+account = '20173148xxxx'
+passwd = 'xxxxxxxx'
+daka_time = '00:05:00' # Hour:Minute:Second
 
 def open_edge():
-    driver = webdriver.Edge()
+    driver = webdriver.Edge(egde_drive_path)
     time.sleep(4)
     driver.get(url)
     time.sleep(1)
@@ -14,9 +18,9 @@ def open_edge():
     input = driver.find_elements_by_tag_name("input")
     time.sleep(3)
     if input[0].get_attribute("placeholder") == "账号":
-        input[0].send_keys("2017xxxxxxxx")
+        input[0].send_keys(account)
         time.sleep(2)
-        input[1].send_keys("xxxxxxxx")
+        input[1].send_keys(passwd)
         time.sleep(2)
         try:
             driver.find_element_by_class_name("btn").click()
@@ -59,7 +63,7 @@ while 1:
     if  any([t in str(now)[14:19] for t in ["00:00","15:00","30:00","45:00"]]):
         print(now_str)
 
-    if "00:05:00" in now_str:
+    if daka_time in now_str:
         open_edge()
 
     time.sleep(1)
