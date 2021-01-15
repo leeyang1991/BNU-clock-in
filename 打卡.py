@@ -5,7 +5,7 @@ from selenium import webdriver
 
 url = "https://onewechat.bnu.edu.cn/ncov/wap/default/index"
 
-def open():
+def open_edge():
     driver = webdriver.Edge()
     time.sleep(4)
     driver.get(url)
@@ -18,7 +18,10 @@ def open():
         time.sleep(2)
         input[1].send_keys("xxxxxxxx")
         time.sleep(2)
-        driver.find_element_by_class_name("btn").click()
+        try:
+            driver.find_element_by_class_name("btn").click()
+        except:
+            driver.find_element_by_class_name("login-btn").click()
         time.sleep(10)
 
     js = "var q=document.documentElement.scrollTop=800"
@@ -57,7 +60,7 @@ while 1:
         print(now_str)
 
     if "00:05:00" in now_str:
-        open()
+        open_edge()
 
     time.sleep(1)
 #
