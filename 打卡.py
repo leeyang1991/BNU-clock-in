@@ -4,13 +4,15 @@ import time
 from selenium import webdriver
 
 url = "https://onewechat.bnu.edu.cn/ncov/wap/default/index"
-egde_drive_path = ''
+chrome_drive_path = '/Users/liyang/Downloads/chromedriver'
 account = '20173148xxxx'
 passwd = 'xxxxxxxx'
 daka_time = '00:05:00' # Hour:Minute:Second
 
-def open_edge():
-    driver = webdriver.Edge(egde_drive_path)
+def open_driver():
+    opts = webdriver.ChromeOptions()
+    opts.headless = True
+    driver = webdriver.Chrome(chrome_drive_path,options=opts)
     time.sleep(4)
     driver.get(url)
     time.sleep(1)
@@ -64,7 +66,7 @@ while 1:
         print(now_str)
 
     if daka_time in now_str:
-        open_edge()
+        open_driver()
 
     time.sleep(1)
 #
