@@ -32,6 +32,9 @@ def open_driver():
 
     js = "var q=document.documentElement.scrollTop=800"
     driver.execute_script(js)
+    # 自定义位置打卡
+    js = "navigator.geolocation.getCurrentPosition = function(success) { success({coords: {latitude: 39.9999, longitude: 116.3151}}); }"  # 北京海淀
+    driver.execute_script(js)
     locs = driver.find_elements_by_tag_name("input")
     for loc in locs:
         if loc.get_attribute("placeholder") == "点击获取地理位置":
