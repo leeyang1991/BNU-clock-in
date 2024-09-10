@@ -64,6 +64,16 @@ def init_log():
     fw.close()
     return 0
 
+def recover_log():
+    fpath = f'{hostname}_fail_times.txt'
+    fr = open(fpath, "r")
+    number = fr.read()
+    number = int(number)
+    fr.close()
+    if number > 0:
+        message = f'{hostname} Recover at [{now}]'
+        hotmail_email(message,number)
+
 def crontab():
     # every 10 minutes
     # */10 * * * * /usr/bin/python /root/ua_network_test.py
@@ -85,6 +95,7 @@ def main():
             content = f'{hostname} Down at [{now}]\nTimezone: {timezone_str}'
             hotmail_email(content,number)
     else:
+        recover_log()
         init_log()
         success_log()
     pass
