@@ -1,5 +1,0 @@
-server_name
-server_ip_name_dict = {
-     "192.168.100.2":'home',
-     "192.168.100.3":'work',
-}

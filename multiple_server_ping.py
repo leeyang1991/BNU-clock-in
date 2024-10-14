@@ -2,28 +2,19 @@
 import time
 import os
 import requests
+import json
 
-server_ip_name_file = '/root/server_ip_name.txt'
-server_ip_name_file_r = open(server_ip_name_file, 'r')
-host_server_name = server_ip_name_file_r.readline().split('\n')[0]
-server_ip_name_dict = eval(server_ip_name_file_r.read())
-
-# host_server_name = 'server_name'
-
-# server_ip_name_dict = {
-#     "192.168.100.2":'home',
-#     "192.168.100.3":'work',
-# }
-
-
-APP_TOKEN = 'xxxxxx'
-USER_KEY = 'xxxxxx'
+server_ip_name_file = '/root/net_test_conf.json'
+json_file = json.load(open(server_ip_name_file, 'r'))
+host_server_name = json_file['host_server_name']
+APP_TOKEN = json_file['APP_TOKEN']
+USER_KEY = json_file['USER_KEY']
+server_ip_name_dict = json_file['server_ip_name_dict']
 
 def pushover(title,message):
     title = host_server_name + ' ' + title
     print('title----------',title)
     print('message----------',message)
-    print(title,message)
     try:
         r = requests.post(
             'https://api.pushover.net/1/messages.json',
@@ -100,13 +91,14 @@ def main():
             if not online:
                 fail_num = send_fail_message(host,fail_num)
                 fail_num_dict[host] = fail_num
+                os.system(f'echo [{now}] {host} is offline')
             else:
-                print(f'[{now}] {host} is online')
+                os.system(f'echo [{now}] {host} is online')
                 if fail_num > 0:
                     fail_num = 0
                     fail_num_dict[host] = fail_num
                     send_recover_message(host)
-            pass
+        os.system(f'echo --------------------')
 
         time.sleep(600)
 
