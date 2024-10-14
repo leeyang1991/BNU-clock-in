@@ -14,8 +14,8 @@ max_fail_times=2
 
 def pushover(title,message):
     title = host_server_name + ' ' + title
-    print('title----------',title)
-    print('message----------',message)
+    # print('title----------',title)
+    # print('message----------',message)
     try:
         r = requests.post(
             'https://api.pushover.net/1/messages.json',
@@ -27,7 +27,7 @@ def pushover(title,message):
             },
         )
     except Exception as e:
-        print(e)
+        os.system(f'echo {e}')
 
 def is_server_online():
     server_ip_list = list(server_ip_name_dict.keys())
@@ -55,7 +55,7 @@ def send_fail_message(host,fail_num):
     timezone_str = timezone_str[0:3] + ":" + timezone_str[3:5]
     fail_num += 1
     now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print(f'fail times: [{fail_num}] {host} [{now}] offline')
+    # print(f'fail times: [{fail_num}] {host} [{now}] offline')
     if fail_num > max_fail_times:
         return fail_num
     if fail_num == max_fail_times:
@@ -99,7 +99,7 @@ def main():
                     fail_num = 0
                     fail_num_dict[host] = fail_num
                     send_recover_message(host)
-        os.system(f'echo --------------------')
+        os.system(f'echo ------sleep 10 min------')
 
         time.sleep(600)
 
