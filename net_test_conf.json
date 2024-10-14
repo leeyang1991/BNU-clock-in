@@ -1,0 +1,10 @@
+{
+  "host_server_name": "host_server_name",
+  "APP_TOKEN":"APP_TOKEN",
+  "USER_KEY":"USER_KEY",
+  "server_ip_name_dict":
+  {"192.168.100.2":"Home",
+"192.168.100.3":"Work"}
+}
+
+
