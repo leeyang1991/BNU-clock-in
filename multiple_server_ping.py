@@ -10,6 +10,7 @@ host_server_name = json_file['host_server_name']
 APP_TOKEN = json_file['APP_TOKEN']
 USER_KEY = json_file['USER_KEY']
 server_ip_name_dict = json_file['server_ip_name_dict']
+max_fail_times=2
 
 def pushover(title,message):
     title = host_server_name + ' ' + title
@@ -47,7 +48,7 @@ def is_server_online():
         status_dict[host] = status
     return status_dict
 
-def send_fail_message(host,fail_num,max_fail_times=3):
+def send_fail_message(host,fail_num):
     hostname = server_ip_name_dict[host]
     timezone = time.timezone
     timezone_str = time.strftime("%z", time.localtime(timezone))
