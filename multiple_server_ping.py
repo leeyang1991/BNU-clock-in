@@ -29,7 +29,7 @@ def pushover(title,message):
             },
         )
     except Exception as e:
-        os.system(f'printf {On_Red}{e}{NC}')
+        os.system(f'echo "{On_Red}{e}{NC}"')
 
 def is_server_online():
     server_ip_list = list(server_ip_name_dict.keys())
@@ -94,14 +94,14 @@ def main():
             if not online:
                 fail_num = send_fail_message(host,fail_num)
                 fail_num_dict[host] = fail_num
-                os.system(f'printf [{now}] {host} is {On_Red}offline{NC}')
+                os.system(f'echo "[{now}] {host} is {On_Red}offline{NC}"')
             else:
-                os.system(f'printf [{now}] {host} is online')
+                os.system(f'echo "[{now}] {host} is online"')
                 if fail_num > 0:
                     fail_num = 0
                     fail_num_dict[host] = fail_num
                     send_recover_message(host)
-        os.system(f'printf ------sleep 10 min------')
+        os.system(f'echo ------sleep 10 min------')
 
         time.sleep(600)
 
