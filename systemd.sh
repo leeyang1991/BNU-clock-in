@@ -16,3 +16,4 @@ systemctl restart network_test.service
 systemctl enable network_test.service
 systemctl status network_test.service
 systemctl stop network_test.service
+systemctl start network_test.service

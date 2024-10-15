@@ -22,7 +22,6 @@ def get_conf():
 
 def pushover(title,message):
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times = get_conf()
-    title = host_server_name + ' ' + title
     # print('title----------',title)
     # print('message----------',message)
     try:
@@ -61,7 +60,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
         if not online:
             content += f'{host_name}:{host} is Down\n'
         else:
-            content += f'{host_name}:{host} is up\n'
+            content += f'{host_name}:{host} is Up\n'
     content += '------Hosts status------\n'
     return title, content
 
