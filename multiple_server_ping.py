@@ -138,7 +138,6 @@ def main():
                     recover_content = recover_message(host)
                     message_dict[host] = recover_content
 
-        time.sleep(600)
         title, content = gen_message(message_dict,host_status_dict,fail_num_dict)
         print(title)
         print(content)
@@ -146,9 +145,7 @@ def main():
             # print('push')
             pushover(title,content)
         os.system(f'echo ------sleep 10 min------')
-
-
-
+        time.sleep(600)
 
 if __name__ == '__main__':
     main()
