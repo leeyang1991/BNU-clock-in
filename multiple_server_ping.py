@@ -51,7 +51,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
 
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,host_server_ip = get_conf()
     title = f'{host_server_name}'
-    content = f'[{now}]' + ' ' + f'Timezone: {timezone_str}' + '\n'
+    content = f'[{now}]' + ' ' + f'Timezone: {timezone_str}' + '\n\n'
     if len(message_dict) == 0:
         return None, None
     for host in message_dict:
@@ -104,7 +104,7 @@ def is_server_online():
         status_dict[host] = status
     return status_dict
 
-def fail_message(host,fail_num):
+def fail_message(host):
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
     hostname = server_ip_name_dict[host]
     content = f'{hostname}:{host} Down'
@@ -138,7 +138,7 @@ def main():
                 fail_num += 1
                 fail_num_dict[host] = fail_num
                 if fail_num <= max_fail_times:
-                    fail_content = fail_message(host,fail_num)
+                    fail_content = fail_message(host)
                     message_dict[host] = fail_content
             else:
                 os.system(f'echo "[{now}] {host} is online"')
