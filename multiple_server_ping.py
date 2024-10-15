@@ -69,7 +69,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
             content += f'{host_name}:{host} is Down\n'
         else:
             content += f'{host_name}:{host} is Up\n'
-    content += '------Hosts status------\n'
+    content += '------Hosts status------\n\n'
     content += f'From {host_server_name}:{host_server_ip}'
     return title, content
 
