@@ -2,7 +2,6 @@
 import time
 import os
 import requests
-import json
 On_Red='\033[41m' # red background
 NC='\033[0m' # No Color
 timezone = time.timezone
@@ -10,18 +9,27 @@ timezone_str = time.strftime("%z", time.localtime(timezone))
 timezone_str = timezone_str[0:3] + ":" + timezone_str[3:5]
 
 def get_conf():
-    server_ip_name_file = '/root/net_test_conf.json'
-    # server_ip_name_file = 'net_test_conf.json'
-    json_file = json.load(open(server_ip_name_file, 'r'))
-    host_server_name = json_file['host_server_name']
-    APP_TOKEN = json_file['APP_TOKEN']
-    USER_KEY = json_file['USER_KEY']
-    server_ip_name_dict = json_file['server_ip_name_dict']
+    import configparser
+    conf_path = '/root/network_test.conf'
+    config = configparser.ConfigParser()
+    config.read(conf_path)
+    host_server_name = config['Host_server_info']['name']
+    host_server_ip = config['Host_server_info']['ip_addr']
+    APP_TOKEN = config['Pushover_token']['APP_TOKEN']
+    USER_KEY = config['Pushover_token']['USER_KEY']
+
+    Clients_info = config['Clients_info']
+    server_ip_name_dict = {}
+    for host in Clients_info:
+        ip = Clients_info[host]
+        server_ip_name_dict[ip]=host
+    # exit()
     max_fail_times=2
-    return host_server_name,APP_TOKEN,USER_KEY,server_ip_name_dict,max_fail_times
+    return host_server_name,APP_TOKEN,USER_KEY,server_ip_name_dict,max_fail_times,host_server_ip
+    pass
 
 def pushover(title,message):
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
     # print('title----------',title)
     # print('message----------',message)
     try:
@@ -41,7 +49,7 @@ def pushover(title,message):
 def gen_message(message_dict,host_status_dict,fail_num_dict):
     now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,host_server_ip = get_conf()
     title = f'{host_server_name}'
     content = f'[{now}]' + ' ' + f'Timezone: {timezone_str}' + '\n'
     if len(message_dict) == 0:
@@ -62,10 +70,11 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
         else:
             content += f'{host_name}:{host} is Up\n'
     content += '------Hosts status------\n'
+    content += f'From {host_server_name}:{host_server_ip}'
     return title, content
 
 def is_server_online():
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
     # fpath = 'net_test_conf_test.txt'
     # fr = open(fpath, "r")
     # lines = fr.readlines()
@@ -96,13 +105,13 @@ def is_server_online():
     return status_dict
 
 def fail_message(host,fail_num):
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
     hostname = server_ip_name_dict[host]
     content = f'{hostname}:{host} Down'
     return content
 
 def recover_message(host):
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
 
     hostname = server_ip_name_dict[host]
     content = f'{hostname}:{host} Recover'
@@ -110,7 +119,7 @@ def recover_message(host):
     return content
 
 def main():
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
     fail_num_dict = {}
     for host in server_ip_name_dict:
         fail_num_dict[host] = 0
@@ -121,6 +130,8 @@ def main():
         for host in host_status_dict:
             # print(host)
             online = host_status_dict[host]
+            if not host in fail_num_dict:
+                fail_num_dict[host] = 0
             fail_num = fail_num_dict[host]
             if not online:
                 os.system(f'echo "[{now}] {host} is {On_Red}offline{NC}"')
