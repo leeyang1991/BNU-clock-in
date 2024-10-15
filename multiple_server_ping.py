@@ -5,7 +5,6 @@ import requests
 import json
 On_Red='\033[41m' # red background
 NC='\033[0m' # No Color
-
 server_ip_name_file = '/root/net_test_conf.json'
 json_file = json.load(open(server_ip_name_file, 'r'))
 host_server_name = json_file['host_server_name']
@@ -29,7 +28,7 @@ def pushover(title,message):
             },
         )
     except Exception as e:
-        os.system(f'printf "{On_Red}{e}{NC}"')
+        os.system(f'echo "{On_Red}{e}{NC}"')
 
 def is_server_online():
     server_ip_list = list(server_ip_name_dict.keys())
@@ -94,7 +93,7 @@ def main():
             if not online:
                 fail_num = send_fail_message(host,fail_num)
                 fail_num_dict[host] = fail_num
-                os.system(f'printf "[{now}] {host} is {On_Red}offline{NC}"')
+                os.system(f'echo "[{now}] {host} is {On_Red}offline{NC}"')
             else:
                 os.system(f'echo "[{now}] {host} is online"')
                 if fail_num > 0:
