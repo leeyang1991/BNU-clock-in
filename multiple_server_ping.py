@@ -50,7 +50,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
     now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,host_server_ip = get_conf()
-    title = f'{host_server_name}'
+    title = f''
     content = f'[{now}]' + ' ' + f'Timezone: {timezone_str}' + '\n\n'
     if len(message_dict) == 0:
         return None, None
@@ -61,6 +61,14 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
             content += f'{message}, fail times:{fail_time}\n'
         else:
             content += f'{message}\n'
+    if 'Recover' in content and 'Down' in content:
+        title = 'Recover and Down'
+    elif 'Down' in content:
+        title = 'Down'
+    elif 'Recover' in content:
+        title = 'Recover'
+    else:
+        pass
     content += '\n------Clients status------\n'
     for host in host_status_dict:
         host_name = server_ip_name_dict[host]
