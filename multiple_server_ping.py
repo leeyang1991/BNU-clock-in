@@ -91,6 +91,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
     for host in host_status_dict:
         host_name = server_ip_name_dict[host]
         online = host_status_dict[host]
+        host_name = html_add_color_blue(host_name)
         if not online:
             Down = html_add_color_red('Down')
             content += f'{host_name}:{host} is {Down}\n'
@@ -135,6 +136,7 @@ def is_server_online():
 def fail_message(host):
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     hostname = server_ip_name_dict[host]
+    hostname = html_add_color_blue(hostname)
     Down = html_add_color_red('Down')
     content = f'{hostname}:{host} {Down}'
     return content
@@ -143,6 +145,7 @@ def recover_message(host):
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
 
     hostname = server_ip_name_dict[host]
+    hostname = html_add_color_blue(hostname)
     Recover = html_add_color_green('Recover')
     content = f'{hostname}:{host} {Recover}'
     # pushover(title,content)
