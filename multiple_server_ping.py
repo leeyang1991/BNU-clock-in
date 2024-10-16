@@ -2,6 +2,8 @@
 import time
 import os
 import requests
+import ipaddress
+
 On_Red='\033[41m' # red background
 NC='\033[0m' # No Color
 timezone = time.timezone
@@ -11,6 +13,7 @@ timezone_str = timezone_str[0:3] + ":" + timezone_str[3:5]
 def get_conf():
     import configparser
     conf_path = '/root/network_test.conf'
+    # conf_path = 'network_test.conf'
     config = configparser.ConfigParser()
     config.read(conf_path)
     host_server_name = config['Host_server_info']['name']
@@ -24,7 +27,16 @@ def get_conf():
     server_ip_name_dict = {}
     for host in Clients_info:
         ip = Clients_info[host]
-        server_ip_name_dict[ip]=host
+        if '/' in ip:
+            subnet = ip.split('/')[0]
+            cidr = ip.split('/')[1]
+            cidr = int(cidr)
+            ip_list = ipaddress.ip_network(ip)
+            for i,ip_i in enumerate(ip_list):
+                ip_str = ip_i.__str__()
+                server_ip_name_dict[ip_str] = f'{host} {i+1}'
+        else:
+            server_ip_name_dict[ip]=host
 
     max_fail_times = int(max_fail_times)
     sleep_time_seconds = int(sleep_time_seconds)
@@ -100,7 +112,7 @@ def is_server_online():
     #     status_dict[host] = status
 
     server_ip_list = list(server_ip_name_dict.keys())
-    ping_server = "fping " + ' '.join(server_ip_list)
+    ping_server = "fping " + ' '.join(server_ip_list) + " -A"
     ping_results = os.popen(ping_server).read()
     ping_results_lines = ping_results.split('\n')
     status_dict = {}
