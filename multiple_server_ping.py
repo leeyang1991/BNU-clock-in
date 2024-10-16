@@ -3,6 +3,7 @@ import time
 import os
 import requests
 import ipaddress
+# from pprint import pprint
 
 On_Red='\033[41m' # red background
 NC='\033[0m' # No Color
@@ -56,6 +57,7 @@ def pushover(title,message):
                 'user': USER_KEY,
                 'message': message,
                 'title': title,
+                'html': 1,
             },
         )
         # print(r.content)
@@ -90,9 +92,11 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
         host_name = server_ip_name_dict[host]
         online = host_status_dict[host]
         if not online:
-            content += f'{host_name}:{host} is Down\n'
+            Down = html_add_color_red('Down')
+            content += f'{host_name}:{host} is {Down}\n'
         else:
-            content += f'{host_name}:{host} is Up\n'
+            Up = html_add_color_green('Up')
+            content += f'{host_name}:{host} is {Up}\n'
     content += '------Clients status------\n\n'
     content += f'From {host_server_name}:{host_server_ip}'
     return title, content
@@ -131,16 +135,33 @@ def is_server_online():
 def fail_message(host):
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     hostname = server_ip_name_dict[host]
-    content = f'{hostname}:{host} Down'
+    Down = html_add_color_red('Down')
+    content = f'{hostname}:{host} {Down}'
     return content
 
 def recover_message(host):
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
 
     hostname = server_ip_name_dict[host]
-    content = f'{hostname}:{host} Recover'
+    Recover = html_add_color_green('Recover')
+    content = f'{hostname}:{host} {Recover}'
     # pushover(title,content)
     return content
+
+def html_add_color_blue(text):
+    text = f'<b>{text}</b>'
+    text = f'<font color="#0000ff">{text}</font>'
+    return text
+
+def html_add_color_red(text):
+    text = f'<b>{text}</b>'
+    text = f'<font color="#ff0000">{text}</font>'
+    return text
+
+def html_add_color_green(text):
+    text = f'<b>{text}</b>'
+    text = f'<font color="#00ff00">{text}</font>'
+    return text
 
 def main():
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
@@ -173,11 +194,34 @@ def main():
                     message_dict[host] = recover_content
 
         title, content = gen_message(message_dict,host_status_dict,fail_num_dict)
-        print(title)
-        print(content)
         if title is not None and content is not None:
-            # print('push')
-            pushover(title,content)
+            content_lines = content.split('\n')
+            split_content_dict = {}
+            split_content_block_flag = 1
+            line_len_sum = 0
+            split_content = ''
+            for line in content_lines:
+                line_len = len(line)
+                line_len_sum += line_len
+                split_content += line + '\n'
+
+                if line_len_sum > 900:
+                    split_content_dict[split_content_block_flag] = split_content
+                    split_content_block_flag += 1
+                    line_len_sum = 0
+                    split_content = ''
+                    continue
+
+            if not len(split_content) == 0:
+                split_content_dict[split_content_block_flag] = split_content
+            if len(split_content_dict) == 1:
+                pushover(title,content)
+            else:
+                for i in range(len(split_content_dict)):
+                    content = split_content_dict[i+1]
+                    new_title = title + f' ({i+1}/{len(split_content_dict)})'
+                    pushover(new_title,content)
+                    time.sleep(1)
         _, _, _, _, _, _, sleep_time_seconds = get_conf()
         os.system(f'echo ------sleep {sleep_time_seconds} seconds------')
         time.sleep(sleep_time_seconds)
