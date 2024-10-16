@@ -15,6 +15,8 @@ def get_conf():
     config.read(conf_path)
     host_server_name = config['Host_server_info']['name']
     host_server_ip = config['Host_server_info']['ip_addr']
+    max_fail_times = config['Host_server_info']['max_fail_times']
+    sleep_time_seconds = config['Host_server_info']['sleep_time_seconds']
     APP_TOKEN = config['Pushover_token']['APP_TOKEN']
     USER_KEY = config['Pushover_token']['USER_KEY']
 
@@ -23,13 +25,15 @@ def get_conf():
     for host in Clients_info:
         ip = Clients_info[host]
         server_ip_name_dict[ip]=host
-    # exit()
-    max_fail_times=2
-    return host_server_name,APP_TOKEN,USER_KEY,server_ip_name_dict,max_fail_times,host_server_ip
+
+    max_fail_times = int(max_fail_times)
+    sleep_time_seconds = int(sleep_time_seconds)
+
+    return host_server_name,APP_TOKEN,USER_KEY,server_ip_name_dict,max_fail_times,host_server_ip,sleep_time_seconds
     pass
 
 def pushover(title,message):
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     # print('title----------',title)
     # print('message----------',message)
     try:
@@ -49,7 +53,7 @@ def pushover(title,message):
 def gen_message(message_dict,host_status_dict,fail_num_dict):
     now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,host_server_ip = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,host_server_ip,_ = get_conf()
     title = f''
     content = f'[{now}]' + ' ' + f'Timezone: {timezone_str}' + '\n\n'
     if len(message_dict) == 0:
@@ -82,7 +86,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict):
     return title, content
 
 def is_server_online():
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     # fpath = 'net_test_conf_test.txt'
     # fr = open(fpath, "r")
     # lines = fr.readlines()
@@ -113,13 +117,13 @@ def is_server_online():
     return status_dict
 
 def fail_message(host):
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     hostname = server_ip_name_dict[host]
     content = f'{hostname}:{host} Down'
     return content
 
 def recover_message(host):
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
 
     hostname = server_ip_name_dict[host]
     content = f'{hostname}:{host} Recover'
@@ -127,7 +131,7 @@ def recover_message(host):
     return content
 
 def main():
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_ = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     fail_num_dict = {}
     for host in server_ip_name_dict:
         fail_num_dict[host] = 0
@@ -162,8 +166,9 @@ def main():
         if title is not None and content is not None:
             # print('push')
             pushover(title,content)
-        os.system(f'echo ------sleep 10 min------')
-        time.sleep(600)
+        _, _, _, _, _, _, sleep_time_seconds = get_conf()
+        os.system(f'echo ------sleep {sleep_time_seconds} seconds------')
+        time.sleep(sleep_time_seconds)
 
 if __name__ == '__main__':
     main()
