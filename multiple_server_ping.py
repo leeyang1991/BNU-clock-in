@@ -31,7 +31,7 @@ def get_conf():
             subnet = ip.split('/')[0]
             cidr = ip.split('/')[1]
             cidr = int(cidr)
-            ip_list = ipaddress.ip_network(ip)
+            ip_list = ipaddress.ip_network(ip,False).hosts()
             for i,ip_i in enumerate(ip_list):
                 ip_str = ip_i.__str__()
                 server_ip_name_dict[ip_str] = f'{host} {i+1}'
