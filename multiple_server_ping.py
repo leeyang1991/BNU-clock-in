@@ -206,9 +206,12 @@ def main():
         switch_dict = {}
         for host in host_status_dict:
             online = host_status_dict[host]
-            init_online = init_status_dict[host]
             if not host in fail_num_dict:
                 fail_num_dict[host] = 0
+            if not host in init_status_dict:
+                init_status_dict[host] = None
+            init_online = init_status_dict[host]
+
             init_status_dict[host] = online
             if init_online == None:
                 switch_dict[host] = f'{online}'
