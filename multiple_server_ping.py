@@ -247,7 +247,7 @@ def main():
                 line_len_sum += line_len
                 split_content += line + '\n'
 
-                if line_len_sum >= 1000:
+                if line_len_sum >= 900:
                     split_content_dict[split_content_block_flag] = split_content
                     split_content_block_flag += 1
                     line_len_sum = 0
