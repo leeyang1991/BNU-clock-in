@@ -15,6 +15,10 @@ def get_conf():
     import configparser
     conf_path = '/root/network_test.conf'
     # conf_path = 'network_test.conf'
+    if not os.path.exists(conf_path):
+        print(f'{On_Red}Error: {conf_path} not exists!{NC}')
+        os.system(f'echo "{On_Red}Error: {conf_path} not exists!{NC}"')
+        exit(1)
     config = configparser.ConfigParser()
     config.read(conf_path)
     host_server_name = config['Host_server_info']['name']
@@ -46,6 +50,7 @@ def get_conf():
     pass
 
 def pushover(title,message):
+    # return
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     # print('title----------',title)
     # print('message----------',message)
@@ -64,46 +69,59 @@ def pushover(title,message):
     except Exception as e:
         os.system(f'echo "{On_Red}{e}{NC}"')
 
-def gen_message(message_dict,host_status_dict,fail_num_dict):
+def gen_message(message_dict,host_status_dict,fail_num_dict,switch_dict,is_init_message):
     now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
+    Down = html_add_color_red('Down')
+    Up = html_add_color_green('Up')
+    status_str_dict = {True:Up,False:Down}
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,host_server_ip,_ = get_conf()
-    title = f''
+    # title = f''
     content = f'[{now}]' + ' ' + f'Timezone: {timezone_str}' + '\n\n'
+
+    if is_init_message == True:
+        title = 'Init'
+        for host in host_status_dict:
+            switch_status = switch_dict[host].replace('True', Up).replace('False', Down)
+            host_name = server_ip_name_dict[host]
+            host_name = html_add_color_blue(host_name)
+            content += f'{host_name} {host} : {switch_status}\n'
+        host_server_name = html_add_color_blue(host_server_name)
+        content += f'\nFrom {host_server_name}:{host_server_ip}'
+        return title, content
+
     if len(message_dict) == 0:
         return None, None
+    current_status_str = ''
     for host in message_dict:
         message = message_dict[host]
         fail_time = fail_num_dict[host]
         if fail_time > 0:
-            content += f'{message}, fail times:{fail_time}\n'
+            current_status_str += f'{message}, fail times:{fail_time}\n'
         else:
-            content += f'{message}\n'
-    if 'Recover' in content and 'Down' in content:
+            current_status_str += f'{message}\n'
+    if 'Recover' in current_status_str and 'Down' in current_status_str:
         title = 'Recover and Down'
-    elif 'Down' in content:
+    elif 'Down' in current_status_str:
         title = 'Down'
-    elif 'Recover' in content:
+    elif 'Recover' in current_status_str:
         title = 'Recover'
     else:
-        pass
-    content += '\n------Clients status------\n'
+        raise Exception
+    # content += '\n------Clients status------\n'
     for host in host_status_dict:
         host_name = server_ip_name_dict[host]
-        online = host_status_dict[host]
         host_name = html_add_color_blue(host_name)
-        if not online:
-            Down = html_add_color_red('Down')
-            content += f'{host_name}:{host} is {Down}\n'
-        else:
-            Up = html_add_color_green('Up')
-            content += f'{host_name}:{host} is {Up}\n'
-    content += '------Clients status------\n\n'
-    content += f'From {host_server_name}:{host_server_ip}'
+        switch_status = switch_dict[host].replace('True',Up).replace('False',Down)
+        content += f'{host_name} {host} : {switch_status}\n'
+    host_server_name = html_add_color_blue(host_server_name)
+    content += f'\nFrom {host_server_name}:{host_server_ip}'
+    print(content)
     return title, content
 
 def is_server_online():
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
+
+    ###### for debug ######
     # fpath = 'net_test_conf_test.txt'
     # fr = open(fpath, "r")
     # lines = fr.readlines()
@@ -115,6 +133,7 @@ def is_server_online():
     #     host, status = line.split(' ')
     #     status = eval(status)
     #     status_dict[host] = status
+    ###### for debug ######
 
     server_ip_list = list(server_ip_name_dict.keys())
     ping_server = "fping " + ' '.join(server_ip_list) + " -A"
@@ -133,11 +152,20 @@ def is_server_online():
         status_dict[host] = status
     return status_dict
 
+def init_is_server_online():
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
+
+    server_ip_list = list(server_ip_name_dict.keys())
+    # print(server_ip_list);exit()
+    status_dict = {}
+    for ip in server_ip_list:
+        status_dict[ip] = None
+    return status_dict
+
 def fail_message(host):
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     hostname = server_ip_name_dict[host]
-    hostname = html_add_color_blue(hostname)
-    Down = html_add_color_red('Down')
+    Down = 'Down'
     content = f'{hostname}:{host} {Down}'
     return content
 
@@ -145,10 +173,8 @@ def recover_message(host):
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
 
     hostname = server_ip_name_dict[host]
-    hostname = html_add_color_blue(hostname)
-    Recover = html_add_color_green('Recover')
+    Recover = 'Recover'
     content = f'{hostname}:{host} {Recover}'
-    # pushover(title,content)
     return content
 
 def html_add_color_blue(text):
@@ -167,19 +193,31 @@ def html_add_color_green(text):
     return text
 
 def main():
+    init_status_dict = init_is_server_online()
     host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,_,_ = get_conf()
     fail_num_dict = {}
     for host in server_ip_name_dict:
         fail_num_dict[host] = 0
+    is_init_message = True
     while 1:
         host_status_dict = is_server_online()
         now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         message_dict = {}
+        switch_dict = {}
         for host in host_status_dict:
-            # print(host)
             online = host_status_dict[host]
+            init_online = init_status_dict[host]
             if not host in fail_num_dict:
                 fail_num_dict[host] = 0
+            init_status_dict[host] = online
+            if init_online == None:
+                switch_dict[host] = f'{online}'
+            else:
+                if online != init_online:
+                    # switch_dict[host] = f'{init_online} -> {online}'
+                    switch_dict[host] = f'{init_online} &#8594 {online}'
+                else:
+                    switch_dict[host] = f'{online}'
             fail_num = fail_num_dict[host]
             if not online:
                 os.system(f'echo "[{now}] {host} is {On_Red}offline{NC}"')
@@ -195,8 +233,9 @@ def main():
                     fail_num_dict[host] = fail_num
                     recover_content = recover_message(host)
                     message_dict[host] = recover_content
-
-        title, content = gen_message(message_dict,host_status_dict,fail_num_dict)
+        title, content = gen_message(message_dict,host_status_dict,fail_num_dict,switch_dict,is_init_message)
+        is_init_message = False
+        # print(title, content)
         if title is not None and content is not None:
             content_lines = content.split('\n')
             split_content_dict = {}
@@ -208,7 +247,7 @@ def main():
                 line_len_sum += line_len
                 split_content += line + '\n'
 
-                if line_len_sum > 900:
+                if line_len_sum >= 1000:
                     split_content_dict[split_content_block_flag] = split_content
                     split_content_block_flag += 1
                     line_len_sum = 0
