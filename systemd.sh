@@ -15,6 +15,8 @@ wget https://raw.githubusercontent.com/leeyang1991/BNU-clock-in/refs/heads/maste
 systemctl restart network_test.service
 systemctl enable network_test.service
 systemctl status network_test.service
+
+journalctl -fu network_test.service|ccze
 systemctl stop network_test.service
 systemctl start network_test.service
 

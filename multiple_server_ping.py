@@ -74,7 +74,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict,switch_dict,is_init_
     Down = html_add_color_red('Down')
     Up = html_add_color_green('Up')
     status_str_dict = {True:Up,False:Down}
-    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,host_server_ip,_ = get_conf()
+    host_server_name, APP_TOKEN, USER_KEY, server_ip_name_dict, max_fail_times,host_server_ip,sleep_time_seconds = get_conf()
     # title = f''
     content = f'[{now}]' + ' ' + f'Timezone: {timezone_str}' + '\n\n'
 
@@ -115,6 +115,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict,switch_dict,is_init_
         content += f'{host_name} {host} : {switch_status}\n'
     host_server_name = html_add_color_blue(host_server_name)
     content += f'\nFrom {host_server_name}:{host_server_ip}'
+    content += f'\nsleep time:{sleep_time_seconds} seconds'
     print(content)
     return title, content
 
