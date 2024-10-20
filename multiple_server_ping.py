@@ -87,6 +87,7 @@ def gen_message(message_dict,host_status_dict,fail_num_dict,switch_dict,is_init_
             content += f'{host_name} {host} : {switch_status}\n'
         host_server_name = html_add_color_blue(host_server_name)
         content += f'\nFrom {host_server_name}:{host_server_ip}'
+        content += f'\nsleep time:{sleep_time_seconds} seconds'
         return title, content
 
     if len(message_dict) == 0:
